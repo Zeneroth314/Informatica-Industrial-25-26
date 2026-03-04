@@ -7,8 +7,7 @@ int main(void) {
     int n;
     int edad;
     float altura;
-    int nombre;
-    char buf[125];
+    char nombre[125];
 
     printf("========== MENU ==========\n");
     printf("1: Introducir edad.\n");
@@ -33,7 +32,7 @@ int main(void) {
             printf("Su altura es: %f.\n", altura);
             break;
 
-        case 3: leer_cadena("Introuzca su nombre: ", &nombre, buf);
+        case 3: leer_cadena("Introduzca su nombre: ", &nombre, sizeof(nombre));
             printf("Su nombre es: %s.\n", nombre);
             break;
     }
