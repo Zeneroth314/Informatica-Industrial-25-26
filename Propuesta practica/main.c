@@ -8,29 +8,34 @@ int main(void) {
     int edad;
     float altura;
     int nombre;
+    char buf[125];
 
     printf("========== MENU ==========\n");
     printf("1: Introducir edad.\n");
     printf("2: Introducir altura (m).\n");
     printf("3: Introducir nombre.\n");
 
-    leer_entero("Elija una opción:  ", &n);
-        while (n > 3 && n < 1) {
-            printf("Opción inválida\n");
+    leer_entero("Elija una opcion:  ", &n);
+        while (n > 3) {
+            printf("Opcion invalida\n");
             printf("========== MENU ==========\n");
             printf("1: Introducir edad.\n");
             printf("2: Introducir altura (m).\n");
             printf("3: Introducir nombre.\n");
-            leer_entero("Elija una opción:  ", &n);
+            leer_entero("Elija una opcion:  ", &n);
         }
     switch (n) {
         case 1: leer_entero("Introduzca su edad:  ", &edad);
             printf("Su edad es: %d.\n", edad);
+            break;
 
         case 2: leer_float("Introduzca su altura (m):  ", &altura);
-            printf("Su altura es: %f.\n", edad);
+            printf("Su altura es: %f.\n", altura);
+            break;
 
-        //case 3: leer_cadena("Introuzca su nombre: \n", &nombre);//
+        case 3: leer_cadena("Introuzca su nombre: ", &nombre, buf);
+            printf("Su nombre es: %s.\n", nombre);
+            break;
     }
 
 }

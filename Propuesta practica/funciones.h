@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <string.h>
 
 int leer_entero(const char *prompt, int *out);
 int leer_float(const char *prompt, float *out);
