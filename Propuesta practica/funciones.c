@@ -3,6 +3,7 @@
 //
 
 #include "funciones.h"
+#include <string.h>
 
 int leer_entero(const char *prompt, int *out) {
     char buf[128];
@@ -48,4 +49,13 @@ int leer_cadena(const char *prompt, char *dst, size_t cap) {
     if (n > 0 && dst[n - 1] == '\n')
         dst[n - 1] = '\0';
     return 1;
+}
+
+int prompt_menu() {
+    printf("========== MENU ==========\n");
+    printf("1: Introducir edad.\n");
+    printf("2: Introducir altura (m).\n");
+    printf("3: Introducir nombre.\n");
+
+    //  Pequeño experimento para limpiar main.c usando un prompt ya diseñado aparte.
 }

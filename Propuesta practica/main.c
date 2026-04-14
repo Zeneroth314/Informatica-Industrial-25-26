@@ -9,18 +9,12 @@ int main(void) {
     float altura;
     char nombre[125];
 
-    printf("========== MENU ==========\n");
-    printf("1: Introducir edad.\n");
-    printf("2: Introducir altura (m).\n");
-    printf("3: Introducir nombre.\n");
+    prompt_menu();
 
     leer_entero("Elija una opcion:  ", &n);
         while (n > 3) {
-            printf("Opcion invalida\n");
-            printf("========== MENU ==========\n");
-            printf("1: Introducir edad.\n");
-            printf("2: Introducir altura (m).\n");
-            printf("3: Introducir nombre.\n");
+            printf("Opcion no valida. Intentelo de nuevo.\n");
+            prompt_menu();
             leer_entero("Elija una opcion:  ", &n);
         }
     switch (n) {
