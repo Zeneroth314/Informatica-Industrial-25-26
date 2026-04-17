@@ -47,10 +47,30 @@ int leer_cadena(const char *prompt, char *dst, size_t cap) {
     return 1;
 }
 
-int prompt_menu() {
+void prompt_menu() {
     printf("========== MENU ==========\n");
     printf("1: Listar.\n");
     printf("2: Anadir.\n");
     printf("3: Modificar.\n");
     printf("4: Salir.\n");
+}
+
+int leer_menu(const char *prompt, int *out) {
+    char buf[128];
+    for (;;) {
+        printf("%s", prompt);
+        if (!fgets(buf, sizeof(buf), stdin)) return 0; // EOF
+        errno = 0; // variable global de error en strol
+        char *end = NULL;
+        long v = strtol(buf, &end, 10);
+        // Saltar espacios finales
+        while (end && isspace((unsigned char)*end)) end++;
+
+        if (errno == 0 && end && *end == '\0') {
+            *out = (int)v;
+            return 1;
+        }
+        printf("Entrada no valida. Intentelo de nuevo.\n");
+        prompt_menu();
+    }
 }
