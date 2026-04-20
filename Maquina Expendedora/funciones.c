@@ -52,7 +52,8 @@ void prompt_menu() {
     printf("1: Listar.\n");
     printf("2: Anadir.\n");
     printf("3: Modificar.\n");
-    printf("4: Salir.\n");
+    printf("4: Guardar.\n");
+    printf("5: Salir.\n");
 }
 
 int leer_menu(const char *prompt, int *out) {
@@ -73,4 +74,29 @@ int leer_menu(const char *prompt, int *out) {
         printf("Entrada no valida. Intentelo de nuevo.\n");
         prompt_menu();
     }
+}
+void tabla(){
+        printf("=======================================================================\n");
+        printf("%-20s %-20s %-18s %-6s\n", "ID", "Nombre", "Precio(EUR)", "Stock");
+        printf("-----------------------------------------------------------------------\n");
+}
+
+int guardar_fichero(Producto *productos, int i) {
+            FILE *fichero = fopen("productos.txt", "w");
+            if (!fichero) {
+                printf("Error fichero no guardado\n");
+                return;
+            }
+        for (int escritura = 0; escritura < i; escritura++) {
+            fprintf(fichero, "%s;%s;%.2f;%d\n",
+                    productos[escritura].id,
+                    productos[escritura].nombre,
+                    productos[escritura].precio,
+                    productos[escritura].stock);
+        }
+    fclose(fichero);
+}
+int subir_productos() {
+    FILE *fichero = fopen("productos.txt", "r");
+    if (!fichero) return 0;
 }
