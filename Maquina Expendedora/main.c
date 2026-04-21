@@ -15,6 +15,7 @@ int main(void) {
     int salir=0;              // salir hace verificación de que salga
     int salir4 = 0;
     char aux[64];               // auxiliar para leer en añadir
+    int guardado=0;
     float aux2;
     int escritura;
     int aux3;
@@ -40,6 +41,10 @@ int main(void) {
                 case 1:
                     x=0;
                     n=0;
+                    if (i==0) {
+                        printf("No hay productos que mostrar.\n\n");
+                        break;
+                    }
                     tabla();
                     for (escritura = 0; escritura < i; escritura++) {
                         printf("%-20s %-20s %-18.2f %-6d\n",productos[escritura].id,productos[escritura].nombre,productos[escritura].precio,productos[escritura].stock);
@@ -50,6 +55,7 @@ int main(void) {
                 case 2:
                     n=0;
                     x=0;
+                    guardado = 1;
                         for (;!salir2;i++) {
                             leer_cadena("Introduzca el ID: ", aux, sizeof(aux));
                             strcpy(productos[i].id, aux);
@@ -82,15 +88,20 @@ int main(void) {
                 case 3:
                     x=0;
                     n=0;
+                    guardado = 1;
                     while (!salir3) {
+                        if (i==0) {
+                            printf("No hay productos que modificar.\n\n");
+                            break;
+                        }
                         while (!salir2) {
                             leer_entero("Introduzca el numero de la posicion del producto que desea cambiar: ",&aux4);
-                            if (aux4 - 1 < i) {
-                                salir2 = 1;
-                            }
-                            else {
+                            if (aux4 - 1 > i || aux4 <= 0) {
                                 printf("No existe el producto. ");
                                 salir2 = 0;
+                            }
+                            else if (aux4 - 1 < i) {
+                                salir2 = 1;
                             }
                         }
                         leer_cadena("Introduzca el ID: ", aux, sizeof(aux));
@@ -103,7 +114,7 @@ int main(void) {
                         leer_entero("Introduzca el stock: ", &aux3);
                         productos[aux4-1].stock = aux3;
                         aux3 = 0;
-                        leer_cadena("Desea continuar anadiendo? Y/N: ",aux, sizeof(aux));
+                        leer_cadena("Desea continuar modificando? Y/N: ",aux, sizeof(aux));
                         salir4=0;
                         while (!salir4) {
                             if (strcmp(aux, "Y") == 0 || strcmp(aux, "y") == 0) {
@@ -126,12 +137,35 @@ int main(void) {
                 case 4:
                     n=0;
                     x=0;
+                    guardado = 0;
                     guardar_fichero(productos, i);
-                    printf("Fichero guardado con exito.\n");
+                    if (guardar_fichero(productos,i)==1) printf("Fichero guardado con exito.\n\n");
                     break;
                 case 5:
                     n=0;
-                    salir = 1;
+                    salir4=0;
+                    if (guardado) {
+                        leer_cadena("Ha salido sin guardar. Desea guardar antes de salir? Y/N: ",aux, sizeof(aux));
+                        while (!salir4) {
+                            if (strcmp(aux, "Y") == 0 || strcmp(aux, "y") == 0) {
+                                salir4 = 1;
+                                guardar_fichero(productos, i);
+                                if (guardar_fichero(productos,i)==1) printf("Fichero guardado con exito.\n\n");
+                                salir = 1;
+                            }
+                            else if (strcmp(aux, "N") == 0 || strcmp(aux, "n") == 0) {
+                                salir4 = 1;
+                                salir = 1;
+                            }
+                            else {
+                                leer_cadena("Opcion no valida.\n Desea continuar modificando? Y/N: ",aux, sizeof(aux));
+                                salir4 = 0;
+                            }
+                        }
+                    }
+                    else {
+                        salir = 1;
+                    }
             }
         }
 

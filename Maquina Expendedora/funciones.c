@@ -95,6 +95,7 @@ int guardar_fichero(Producto *productos, int i) {
                     productos[escritura].stock);
         }
     fclose(fichero);
+    return 1;
 }
 int subir_productos() {
     FILE *fichero = fopen("productos.txt", "r");
