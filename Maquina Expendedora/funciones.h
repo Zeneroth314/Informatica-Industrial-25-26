@@ -1,5 +1,5 @@
-#ifndef PROPUESTA_PRACTICA_FUNCIONES_H
-#define PROPUESTA_PRACTICA_FUNCIONES_H
+#ifndef MAQUINA_EXPENDEDORA_FUNCIONES_H
+#define MAQUINA_EXPENDEDORA_FUNCIONES_H
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -17,7 +17,10 @@ int leer_float(const char *prompt, float *out);
 int leer_cadena(const char *prompt, char *dst, size_t cap);
 void prompt_menu();
 int leer_menu(const char *prompt, int *out);
-void tabla();
+void cabecera_tabla();
+int buscador_ID(Producto *productos,int i);
+int buscador_ID_anadir(Producto *productos,int i, char *aux);
 int guardar_fichero(Producto *productos, int i);
-int subir_productos();
-#endif //PROPUESTA_PRACTICA_FUNCIONES_H
+int subir_productos(Producto *productos);
+int borrar_producto(Producto *productos, int escritura, int i);
+#endif //MAQUINA_EXPENDEDORA_FUNCIONES_H

@@ -50,10 +50,12 @@ int leer_cadena(const char *prompt, char *dst, size_t cap) {
 void prompt_menu() {
     printf("========== MENU ==========\n");
     printf("1: Listar.\n");
-    printf("2: Anadir.\n");
-    printf("3: Modificar.\n");
-    printf("4: Guardar.\n");
-    printf("5: Salir.\n");
+    printf("2: Buscar por ID.\n");
+    printf("3: Anadir.\n");
+    printf("4: Modificar.\n");
+    printf("5: Guardar.\n");
+    printf("6: Borrar producto.\n");
+    printf("7: Salir.\n");
 }
 
 int leer_menu(const char *prompt, int *out) {
@@ -75,7 +77,7 @@ int leer_menu(const char *prompt, int *out) {
         prompt_menu();
     }
 }
-void tabla(){
+void cabecera_tabla(){
         printf("=======================================================================\n");
         printf("%-20s %-20s %-18s %-6s\n", "ID", "Nombre", "Precio(EUR)", "Stock");
         printf("-----------------------------------------------------------------------\n");
@@ -85,7 +87,7 @@ int guardar_fichero(Producto *productos, int i) {
             FILE *fichero = fopen("productos.txt", "w");
             if (!fichero) {
                 printf("Error fichero no guardado\n");
-                return;
+                return 0;
             }
         for (int escritura = 0; escritura < i; escritura++) {
             fprintf(fichero, "%s;%s;%.2f;%d\n",
@@ -97,7 +99,52 @@ int guardar_fichero(Producto *productos, int i) {
     fclose(fichero);
     return 1;
 }
-int subir_productos() {
+int subir_productos(Producto *productos) {
     FILE *fichero = fopen("productos.txt", "r");
     if (!fichero) return 0;
+    int cantidad = 0;
+    char buf[128];
+    while (fgets(buf, sizeof(buf), fichero)) {
+        char id[32];
+        char nombre[32];
+        float precio;
+        int stock;
+        if (sscanf(buf, "%31[^;];%31[^;];%f;%d", id, nombre, &precio, &stock) == 4) {
+            strcpy(productos[cantidad].id, id);
+            strcpy(productos[cantidad].nombre, nombre);
+            productos[cantidad].precio = precio;
+            productos[cantidad].stock  = stock;
+            cantidad++;
+        }
+    }
+    fclose(fichero);
+    return cantidad;
+}
+int buscador_ID(Producto *productos,int i) {
+    char aux[32];
+    int escritura;
+    leer_cadena("Introduzca el ID del producto: ", aux, sizeof(aux));
+    for (escritura = 0; escritura < i; escritura++) {
+        if (strcmp(productos[escritura].id, aux) == 0) {
+            return escritura;
+        }
+    }
+    return -1;
+}
+int buscador_ID_anadir(Producto *productos,int i, char *aux) {
+    int escritura;
+    for (escritura = 0; escritura < i; escritura++) {
+        if (strcmp(productos[escritura].id, aux) == 0) {
+            return 0;
+        }
+    }
+    return -1;
+}
+int borrar_producto(Producto *productos, int escritura, int i) {
+    int n;
+    for (n=escritura;n<i-1 ; n++) {
+        productos[n] = productos[n+1];
+    }
+    i--;
+    return i;
 }

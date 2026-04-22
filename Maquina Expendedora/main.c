@@ -6,34 +6,31 @@
 #include "funciones.h"
 
 int main(void) {
-    Producto productos[24]; //cantidad de productos que hay en el programa.
-    int i;              // contador para escribir.
-    int n = 0;
-    int x=0;                  // x hace la verificación de que lo que entra al menú sea en el rango de 1 a 4, es la confirmación
-    int salir2 = 0;
-    int salir3 = 0;
-    int salir=0;              // salir hace verificación de que salga
-    int salir4 = 0;
-    char aux[64];               // auxiliar para leer en añadir
-    int guardado=0;
-    float aux2;
-    int escritura;
-    int aux3;
-    int aux4;
-    aux2= 0;
-    aux3 = 0;
-    salir = 0;
-    //subir_productos();
+    Producto productos[24];     // Typedef de productos del sistema, por ahora con limite en 24.
+    int i;                      // Cantidad de productos que hay en el sistema.
+    int n = 0;                  // Verificador de caso en el switch.
+    int x=0;                    // Verificación de que lo que entra al menú sea en el rango de 1 a 5.
+    int salir=0;                // Hace verificación de que salga del programa entero.
+    int salir2 = 0;             // Se utiliza para salir del bucle de escritura de productos nuevos.
+    int salir3 = 0;             // Se usa para comprobar que se introduce "Y/N o y/n" en las opciones de si o no.
+    int salir4 = 0;             // Igual que salir 3 para no arriesgarme a que se me crucen.
+    int guardado=0;             // Verificación de si se ha guardado o no.
+    char aux[64];               // Auxiliar para leer en añadir.
+    float aux2 = 0;             // Idem.
+    int aux3 = 0;               // Idem.
+    int escritura;              // Usado en el bucle de listar para poner los productos en pantalla.
+    int contador;               // Hace lo mismo que i pero para que no se mezcle en un buble en el que i ya está involucrado.
+    i = subir_productos(productos);
+    printf("Productos cargados: %d\n", i);
         while (!salir) {
             n=0;
             salir2 = 0;
             salir3 = 0;
-            prompt_menu();
             while (!x) {
+                prompt_menu();
                 leer_menu("Elija una opcion:  ", &n);
-                if (n < 1 || n > 5) {
+                if (n < 1 || n > 7) {
                     printf("Opcion no valida. Intentelo de nuevo. \n");
-                    prompt_menu();
                 }
                 else x = 1;
             }
@@ -45,8 +42,8 @@ int main(void) {
                         printf("No hay productos que mostrar.\n\n");
                         break;
                     }
-                    tabla();
-                    for (escritura = 0; escritura < i; escritura++) {
+                    cabecera_tabla();
+                    for (escritura=0; escritura < i; escritura++) {
                         printf("%-20s %-20s %-18.2f %-6d\n",productos[escritura].id,productos[escritura].nombre,productos[escritura].precio,productos[escritura].stock);
                     }
                     printf("=======================================================================\n");
@@ -55,9 +52,27 @@ int main(void) {
                 case 2:
                     n=0;
                     x=0;
+                    escritura = buscador_ID(productos, i);
+                    if (escritura == -1) {
+                        printf("ID inexistente.\n\n");
+                        break;
+                    }
+                    cabecera_tabla();
+                    printf("%-20s %-20s %-18.2f %-6d\n",productos[escritura].id,productos[escritura].nombre,productos[escritura].precio,productos[escritura].stock);
+                    printf("-----------------------------------------------------------------------\n\n");
+                    break;
+
+                case 3:
+                    n=0;
+                    x=0;
+                    contador = i;
                     guardado = 1;
-                        for (;!salir2;i++) {
-                            leer_cadena("Introduzca el ID: ", aux, sizeof(aux));
+                        for (;!salir2;) {
+                            leer_cadena("Introduzca el ID del producto: ", aux, sizeof(aux));
+                            if (buscador_ID_anadir(productos,contador, aux)== 0) {
+                                printf("ID ya usado.\n\n");
+                                break;
+                            }
                             strcpy(productos[i].id, aux);
                             leer_cadena("Introduzca el nombre: ", aux, sizeof(aux));
                             strcpy(productos[i].nombre, aux);
@@ -66,6 +81,7 @@ int main(void) {
                             aux2 = 0;
                             leer_entero("Introduzca el stock: ", &aux3);
                             productos[i].stock = aux3;
+                            i++;
                             aux3 = 0;
                             leer_cadena("Desea continuar anadiendo? Y/N: ",aux, sizeof(aux));
                             salir3 = 0;
@@ -85,7 +101,7 @@ int main(void) {
                             }
                         }
                     break;
-                case 3:
+                case 4:
                     x=0;
                     n=0;
                     guardado = 1;
@@ -95,24 +111,24 @@ int main(void) {
                             break;
                         }
                         while (!salir2) {
-                            leer_entero("Introduzca el numero de la posicion del producto que desea cambiar: ",&aux4);
-                            if (aux4 - 1 > i || aux4 <= 0) {
-                                printf("No existe el producto. ");
-                                salir2 = 0;
+                            escritura = buscador_ID(productos,i);
+                            if (escritura==-1) {
+                                printf("Error, ID inexistente\n\n");
+                                salir3=1;
+                                break;
                             }
-                            else if (aux4 - 1 < i) {
-                                salir2 = 1;
-                            }
+                            salir2 = 1;
                         }
-                        leer_cadena("Introduzca el ID: ", aux, sizeof(aux));
-                        strcpy(productos[aux4-1].id, aux);
+                        if (salir3) break;
+                        leer_cadena("Introduzca el nuevo ID: ", aux, sizeof(aux));
+                        strcpy(productos[escritura].id, aux);
                         leer_cadena("Introduzca el nombre: ", aux, sizeof(aux));
-                        strcpy(productos[aux4-1].nombre, aux);
+                        strcpy(productos[escritura].nombre, aux);
                         leer_float("Introduzca el precio: ", &aux2);
-                        productos[aux4-1].precio = aux2;
+                        productos[escritura].precio = aux2;
                         aux2 = 0;
                         leer_entero("Introduzca el stock: ", &aux3);
-                        productos[aux4-1].stock = aux3;
+                        productos[escritura].stock = aux3;
                         aux3 = 0;
                         leer_cadena("Desea continuar modificando? Y/N: ",aux, sizeof(aux));
                         salir4=0;
@@ -134,14 +150,53 @@ int main(void) {
                     break;
 
 
-                case 4:
+                case 5:
                     n=0;
                     x=0;
                     guardado = 0;
-                    guardar_fichero(productos, i);
                     if (guardar_fichero(productos,i)==1) printf("Fichero guardado con exito.\n\n");
                     break;
-                case 5:
+                case 6:
+                    n=0;
+                    x=0;
+                    guardado=1;
+                    salir4 = 0;
+                    salir3 =0;
+                    while (!salir4) {
+                        escritura = buscador_ID(productos,i);
+                        if (escritura==-1) {
+                            printf("Error, ID inexistente\n\n");
+                        }
+                        else{
+                            salir4=1;
+                        }
+                    }
+                        cabecera_tabla();
+                        printf("%-20s %-20s %-18.2f %-6d\n",productos[escritura].id,productos[escritura].nombre,productos[escritura].precio,productos[escritura].stock);
+                        printf("-----------------------------------------------------------------------\n\n");
+                    leer_cadena("Esta seguro de que es la opcion a borrar? Y/N: ", aux, sizeof(aux));
+                    while (!salir3) {
+                        if (strcmp(aux, "Y") == 0 || strcmp(aux, "y") == 0) {
+                            i = borrar_producto(productos, escritura, i);
+                            printf("Borrado\n\n");
+                            salir3 = 1;
+                        }
+                        else if (strcmp(aux, "N") == 0 || strcmp(aux, "n") == 0) {
+                            printf("No borrado\n\n");
+                            salir3 = 1;
+                        }
+                        else {
+                            cabecera_tabla();
+                            printf("%-20s %-20s %-18.2f %-6d\n",productos[escritura].id,productos[escritura].nombre,productos[escritura].precio,productos[escritura].stock);
+                            printf("-----------------------------------------------------------------------\n\n");
+                            leer_cadena("Opcion no valida. Esta seguro de que es la opcion a borrar? Y/N: ",aux, sizeof(aux));
+
+                        }
+                    }
+                    break;
+
+
+                case 7:
                     n=0;
                     salir4=0;
                     if (guardado) {
@@ -149,7 +204,6 @@ int main(void) {
                         while (!salir4) {
                             if (strcmp(aux, "Y") == 0 || strcmp(aux, "y") == 0) {
                                 salir4 = 1;
-                                guardar_fichero(productos, i);
                                 if (guardar_fichero(productos,i)==1) printf("Fichero guardado con exito.\n\n");
                                 salir = 1;
                             }
