@@ -23,4 +23,6 @@ int buscador_ID_anadir(Producto *productos,int i, char *aux);
 int guardar_fichero(Producto *productos, int i);
 int subir_productos(Producto *productos);
 int borrar_producto(Producto *productos, int escritura, int i);
+int confirmar_si_no ();
+int confirmar_si_no_2 ();
 #endif //MAQUINA_EXPENDEDORA_FUNCIONES_H

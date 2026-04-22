@@ -19,7 +19,6 @@ int main(void) {
     float aux2 = 0;             // Idem.
     int aux3 = 0;               // Idem.
     int escritura;              // Usado en el bucle de listar para poner los productos en pantalla.
-    int contador;               // Hace lo mismo que i pero para que no se mezcle en un buble en el que i ya está involucrado.
     i = subir_productos(productos);
     printf("Productos cargados: %d\n", i);
         while (!salir) {
@@ -65,11 +64,10 @@ int main(void) {
                 case 3:
                     n=0;
                     x=0;
-                    contador = i;
                     guardado = 1;
                         for (;!salir2;) {
                             leer_cadena("Introduzca el ID del producto: ", aux, sizeof(aux));
-                            if (buscador_ID_anadir(productos,contador, aux)== 0) {
+                            if (buscador_ID_anadir(productos,i, aux)== 0) {
                                 printf("ID ya usado.\n\n");
                                 break;
                             }
@@ -83,22 +81,8 @@ int main(void) {
                             productos[i].stock = aux3;
                             i++;
                             aux3 = 0;
-                            leer_cadena("Desea continuar anadiendo? Y/N: ",aux, sizeof(aux));
-                            salir3 = 0;
-                            while (!salir3) {
-                                if (strcmp(aux, "Y") == 0 || strcmp(aux, "y") == 0) {
-                                    salir2 = 0;
-                                    salir3 = 1;
-                                }
-                                else if (strcmp(aux, "N") == 0 || strcmp(aux, "n") == 0) {
-                                    salir2 = 1;
-                                    salir3 = 1;
-                                }
-                                else {
-                                    leer_cadena("Opcion no valida.\n Desea continuar anadiendo? Y/N: ",aux, sizeof(aux));
-                                    salir3 = 0;
-                                }
-                            }
+                            if (confirmar_si_no ()) salir2 = 0;
+                            else salir2 = 1;
                         }
                     break;
                 case 4:
@@ -110,6 +94,7 @@ int main(void) {
                             printf("No hay productos que modificar.\n\n");
                             break;
                         }
+                        salir2=0;
                         while (!salir2) {
                             escritura = buscador_ID(productos,i);
                             if (escritura==-1) {
@@ -130,35 +115,22 @@ int main(void) {
                         leer_entero("Introduzca el stock: ", &aux3);
                         productos[escritura].stock = aux3;
                         aux3 = 0;
-                        leer_cadena("Desea continuar modificando? Y/N: ",aux, sizeof(aux));
-                        salir4=0;
-                        while (!salir4) {
-                            if (strcmp(aux, "Y") == 0 || strcmp(aux, "y") == 0) {
-                                salir3 = 0;
-                                salir4 = 1;
-                            }
-                            else if (strcmp(aux, "N") == 0 || strcmp(aux, "n") == 0) {
-                                salir3 = 1;
-                                salir4 = 1;
-                            }
-                            else {
-                                leer_cadena("Opcion no valida.\n Desea continuar modificando? Y/N: ",aux, sizeof(aux));
-                                salir4 = 0;
-                            }
-                        }
+                        if (confirmar_si_no ()) salir3 = 0;
+                        else salir3 = 1;
                     }
                     break;
-
-
                 case 5:
                     n=0;
                     x=0;
-                    guardado = 0;
-                    if (guardar_fichero(productos,i)==1) printf("Fichero guardado con exito.\n\n");
+                    if (guardar_fichero(productos,i)==1) {
+                        printf("Fichero guardado con exito.\n\n");
+                        guardado = 0;
+                    }
                     break;
                 case 6:
                     n=0;
                     x=0;
+                    aux3 =0;
                     guardado=1;
                     salir4 = 0;
                     salir3 =0;
@@ -174,23 +146,16 @@ int main(void) {
                         cabecera_tabla();
                         printf("%-20s %-20s %-18.2f %-6d\n",productos[escritura].id,productos[escritura].nombre,productos[escritura].precio,productos[escritura].stock);
                         printf("-----------------------------------------------------------------------\n\n");
-                    leer_cadena("Esta seguro de que es la opcion a borrar? Y/N: ", aux, sizeof(aux));
                     while (!salir3) {
-                        if (strcmp(aux, "Y") == 0 || strcmp(aux, "y") == 0) {
+                        aux3 = confirmar_si_no_2();
+                        if (aux3 == 1) {
                             i = borrar_producto(productos, escritura, i);
                             printf("Borrado\n\n");
                             salir3 = 1;
                         }
-                        else if (strcmp(aux, "N") == 0 || strcmp(aux, "n") == 0) {
+                        else if (aux3 == 0) {
                             printf("No borrado\n\n");
                             salir3 = 1;
-                        }
-                        else {
-                            cabecera_tabla();
-                            printf("%-20s %-20s %-18.2f %-6d\n",productos[escritura].id,productos[escritura].nombre,productos[escritura].precio,productos[escritura].stock);
-                            printf("-----------------------------------------------------------------------\n\n");
-                            leer_cadena("Opcion no valida. Esta seguro de que es la opcion a borrar? Y/N: ",aux, sizeof(aux));
-
                         }
                     }
                     break;
@@ -212,7 +177,7 @@ int main(void) {
                                 salir = 1;
                             }
                             else {
-                                leer_cadena("Opcion no valida.\n Desea continuar modificando? Y/N: ",aux, sizeof(aux));
+                                leer_cadena("Opcion no valida.\n Desea guardar antes de salir? Y/N: ",aux, sizeof(aux));
                                 salir4 = 0;
                             }
                         }

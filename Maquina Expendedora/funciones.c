@@ -148,3 +148,25 @@ int borrar_producto(Producto *productos, int escritura, int i) {
     i--;
     return i;
 }
+int confirmar_si_no () {
+    char aux[64];
+    leer_cadena("Desea seguir con la misma accion? Y/N: ",aux, sizeof(aux));
+        if (strcmp(aux, "Y") == 0 || strcmp(aux, "y") == 0) {
+            return 1;
+        }
+        if (strcmp(aux, "N") == 0 || strcmp(aux, "n") == 0) {
+            return 0;
+        }
+    return confirmar_si_no ();
+}
+int confirmar_si_no_2 () {
+    char aux[64];
+    leer_cadena("Esta seguro de que es la opcion a borrar? Y/N: ",aux, sizeof(aux));
+    if (strcmp(aux, "Y") == 0 || strcmp(aux, "y") == 0) {
+        return 1;
+    }
+    if (strcmp(aux, "N") == 0 || strcmp(aux, "n") == 0) {
+        return 0;
+    }
+    return confirmar_si_no_2 ();
+}
