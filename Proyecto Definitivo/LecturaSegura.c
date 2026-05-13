@@ -112,5 +112,6 @@ int guardar_fichero(Elementos *productos, int NProd) {
                 productos[i].stock);
     }
     fclose(fichero);
+    printf("Se han guardado %d productos correctamente\n", NProd);
     return 1;
 }

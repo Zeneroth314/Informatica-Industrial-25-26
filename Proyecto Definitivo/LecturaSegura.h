@@ -16,5 +16,5 @@ void leer_cadena(const char* mensaje, char* destino, int tam_max);
 int subir_productos(Elementos *productos);
 int buscador_ID(Elementos *productos,int NProd, char *id);
 int confirmar(const char *mensaje);
-int guardar_fichero(Elementos *productos, int NProd);
+int  guardar_fichero(Elementos *productos, int NProd);
 #endif //PROYECTO_DEFINITIVO_LECTURASEGURA_H
