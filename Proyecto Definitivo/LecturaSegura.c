@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "LecturaSegura.h"
 #include <string.h>
+#include <conio.h>
 
 int leer_entero(const char* mensaje) {
     int numero = 0;
@@ -114,4 +115,15 @@ int guardar_fichero(Elementos *productos, int NProd) {
     fclose(fichero);
     printf("Se han guardado %d productos correctamente\n", NProd);
     return 1;
+}
+int leer_tecla_monedero(void) {
+    char c;
+    while (1) {
+        c = _getch();
+        if (c >= '1' && c <= '8') {
+            printf("%c\n", c); // mostrar la tecla pulsada
+            return c - '0';
+        }
+        printf("Error: opcion no valida\n");
+    }
 }

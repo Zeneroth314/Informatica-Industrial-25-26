@@ -50,11 +50,75 @@ int main(void) {
                     }
                 }
                 printf("Ha seleccionado comprar %d unidades de %s.\n", cant, productos[i].nombre);
+
                 if (puerto != INVALID_HANDLE_VALUE) {
+                    // Calcular total via STM32
                     enviar_datos(puerto, cant, productos[i].precio);
                     int total = recibir_total(puerto);
-                    if (total != -1) {
-                        printf("Total a pagar: %d centimos\n", total);
+                    if (total == -1) break;
+                    printf("Total a pagar: %d centimos\n", total);
+
+                    // Monedero
+                    int monedas[] = {0, 1, 2, 5, 10, 20, 50, 100, 200};
+                    int acumulado = 0;
+                    int cancelado = 0;
+                    char respuesta[64];
+
+                    while (acumulado < total && !cancelado) {
+                        system("cls");
+                        printf("========== MONEDERO ==========\n");
+                        printf("Total a pagar:    %d centimos\n", total);
+                        printf("Introducidas:     %d centimos\n", acumulado);
+                        printf("Faltan:           %d centimos\n", total - acumulado);
+                        printf("==============================\n");
+                        printf("1: 1 centimo\n");
+                        printf("2: 2 centimos\n");
+                        printf("3: 5 centimos\n");
+                        printf("4: 10 centimos\n");
+                        printf("5: 20 centimos\n");
+                        printf("6: 50 centimos\n");
+                        printf("7: 1 euro (100 centimos)\n");
+                        printf("8: 2 euros (200 centimos)\n");
+                        printf("==============================\n");
+                        printf("Introduce moneda: ");
+                        int eleccion = leer_tecla_monedero();
+
+                        int moneda = monedas[eleccion];
+                        enviar_moneda(puerto, moneda, acumulado, total);
+                        recibir_respuesta_monedero(puerto, respuesta);
+
+                        if (strcmp(respuesta, "CANCEL") == 0) {
+                            printf("Operacion cancelada desde el STM32.\n");
+                            cancelado = 1;
+                        } else if (strncmp(respuesta, "SIGUE", 5) == 0) {
+                            // Extraer nuevo acumulado
+                            acumulado = 0;
+                            int k = 6;
+                            while (respuesta[k] >= '0' && respuesta[k] <= '9')
+                                acumulado = acumulado * 10 + (respuesta[k++] - '0');
+                            printf("Acumulado actualizado: %d centimos\n", acumulado);
+                        } else if (strncmp(respuesta, "OK", 2) == 0) {
+                            // Extraer cambio y monedas
+                            int cambio = 0;
+                            int k = 3;
+                            while (respuesta[k] >= '0' && respuesta[k] <= '9')
+                                cambio = cambio * 10 + (respuesta[k++] - '0');
+                            printf("Pago completado.\n");
+                            if (cambio > 0) {
+                                printf("Cambio: %d centimos\n", cambio);
+                                // Recibir línea con desglose de monedas
+                                recibir_respuesta_monedero(puerto, respuesta);
+                                printf("Monedas: %s\n", respuesta);
+                            } else {
+                                printf("Sin cambio.\n");
+                                // Vaciar la línea extra del STM32
+                                recibir_respuesta_monedero(puerto, respuesta);
+                            }
+                            // Actualizar stock
+                            productos[i].stock -= cant;
+                            guardar_fichero(productos, NProd);
+                            acumulado = total; // salir del bucle
+                        }
                     }
                 } else {
                     printf("Puerto serie no disponible\n");

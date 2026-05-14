@@ -17,4 +17,5 @@ int subir_productos(Elementos *productos);
 int buscador_ID(Elementos *productos,int NProd, char *id);
 int confirmar(const char *mensaje);
 int  guardar_fichero(Elementos *productos, int NProd);
+int leer_tecla_monedero(void);
 #endif //PROYECTO_DEFINITIVO_LECTURASEGURA_H
