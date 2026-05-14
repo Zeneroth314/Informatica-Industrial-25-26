@@ -3,6 +3,8 @@
 #include "Administrador.h"
 #include "LecturaSegura.h"
 #include "Menus.h"
+#include "SerialPC.h"
+#include <string.h>
 
 int main(void) {
     Elementos productos[40];
@@ -11,7 +13,11 @@ int main(void) {
     int cant;                               // Número de existencias
     int NProd;                              // Número de productos
     char elecID[32];                        // Elección de ID
+    HANDLE puerto;
+    int num_com;
     NProd = subir_productos(productos);
+    num_com = leer_entero("Introduzca el numero de puerto COM: ");
+    puerto = abrir_puerto(num_com);
     while (!ejecucion) {
         int opcion=0;
         menu_general();
@@ -43,7 +49,16 @@ int main(void) {
                         break;
                     }
                 }
-                printf("Ha seleccionado comprar %d unidades de %s.\n ",cant, productos[i].nombre);
+                printf("Ha seleccionado comprar %d unidades de %s.\n", cant, productos[i].nombre);
+                if (puerto != INVALID_HANDLE_VALUE) {
+                    enviar_datos(puerto, cant, productos[i].precio);
+                    int total = recibir_total(puerto);
+                    if (total != -1) {
+                        printf("Total a pagar: %d centimos\n", total);
+                    }
+                } else {
+                    printf("Puerto serie no disponible\n");
+                }
                 break;
             case 2:
                     administrador(productos,&NProd);

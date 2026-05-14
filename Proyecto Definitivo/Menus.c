@@ -28,3 +28,14 @@ void listado(Elementos *productos,int NProd) {
     }
     printf("=======================================================================\n");
 }
+void menu_monedero() {
+    printf("========== MONEDERO ==========\n");
+    printf("1:  1 centimo\n");
+    printf("2:  2 centimos\n");
+    printf("3:  5 centimos\n");
+    printf("4:  10 centimos\n");
+    printf("5:  20 centimos\n");
+    printf("6:  50 centimos\n");
+    printf("7:  1 euro (100 centimos)\n");
+    printf("8:  2 euros (200 centimos)\n");
+}

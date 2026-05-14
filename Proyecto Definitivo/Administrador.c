@@ -29,7 +29,11 @@ void administrador(Elementos *productos, int *NProd) {
                     printf("No existe ese producto, volviendo al menu de administrador...\n");
                     break;
             case 3:
-                *NProd = anadir_ID_admin(productos, *NProd);
+                if (*NProd >= 40) {
+                    printf("Limite de productos alcanzado, no se pueden añadr mas.\n");
+                } else {
+                    *NProd = anadir_ID_admin(productos, *NProd);
+                }
                 break;
             case 4: modificar_ID_admin(productos, *NProd);
                 break;
