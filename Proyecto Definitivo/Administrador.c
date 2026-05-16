@@ -8,6 +8,7 @@ void administrador(Elementos *productos, int *NProd) {
     int i;
     int opcion = 0;
     while (opcion != 7) {
+        system("cls");
         opcion = 0;
         menu_administrador();
         while (opcion < 1 || opcion > 7) {
@@ -15,8 +16,13 @@ void administrador(Elementos *productos, int *NProd) {
             if (opcion < 1 || opcion > 7) printf("Error: Introduzca valores correctos\n");
         }
         switch (opcion) {
-            case 1: listado(productos, *NProd);   break;
+            case 1:
+                system("cls");
+                listado(productos, *NProd);
+                pausa();
+                break;
             case 2:
+                system("cls");
                 i = buscador_ID_admin(productos, *NProd);
                 if (i != -1) {
                     printf("=======================================================================\n");
@@ -24,25 +30,33 @@ void administrador(Elementos *productos, int *NProd) {
                     printf("-----------------------------------------------------------------------\n");
                     printf("%-20s %-20s %-18d %-6d\n",productos[i].id,productos[i].nombre,productos[i].precio,productos[i].stock);
                     printf("=======================================================================\n");
+                    pausa();
                     break;
                 }
                     printf("No existe ese producto, volviendo al menu de administrador...\n");
+                    pausa();
                     break;
             case 3:
                 if (*NProd >= 40) {
                     printf("Limite de productos alcanzado, no se pueden añadr mas.\n");
+                    pausa();
                 } else {
                     *NProd = anadir_ID_admin(productos, *NProd);
+                    pausa();
                 }
                 break;
             case 4: modificar_ID_admin(productos, *NProd);
+                pausa();
                 break;
             case 5: guardar_fichero(productos, *NProd);
+                pausa();
                 break;
             case 6:
                 *NProd = borrar_producto(productos, *NProd);
+                pausa();
                 break;
-            case 7: printf("Volviendo al menu general...\n");     break;
+            case 7: printf("Volviendo al menu general...\n");
+                break;
         }
     }
 }

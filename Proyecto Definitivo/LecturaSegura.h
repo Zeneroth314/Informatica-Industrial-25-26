@@ -4,6 +4,8 @@
 
 #ifndef PROYECTO_DEFINITIVO_LECTURASEGURA_H
 #define PROYECTO_DEFINITIVO_LECTURASEGURA_H
+#include "SerialPC.h"
+
 typedef struct {
     char id[32];
     char nombre[32];
@@ -17,5 +19,8 @@ int subir_productos(Elementos *productos);
 int buscador_ID(Elementos *productos,int NProd, char *id);
 int confirmar(const char *mensaje);
 int  guardar_fichero(Elementos *productos, int NProd);
-int leer_tecla_monedero(void);
+int leer_tecla_monedero(HANDLE puerto);
+void mostrar_cambio(const char *str);
+void pausa(void);
+int verificar_contrasena(void);
 #endif //PROYECTO_DEFINITIVO_LECTURASEGURA_H

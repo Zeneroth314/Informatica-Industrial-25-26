@@ -93,3 +93,41 @@ void recibir_respuesta_monedero(HANDLE puerto, char *buf) {
     }
     buf[i] = '\0';
 }
+int comprobar_boton(HANDLE puerto) {
+    char buf[32];
+    DWORD escritos, leidos;
+    char c;
+    int i = 0;
+
+    WriteFile(puerto, "0;0;0\n", 6, &escritos, NULL);
+
+    while (1) {
+        ReadFile(puerto, &c, 1, &leidos, NULL);
+        if (leidos == 0 || c == '\n' || c == '\r') break;
+        if (i < 31) buf[i++] = c;
+    }
+    buf[i] = '\0';
+
+    if (strcmp(buf, "CANCEL") == 0) {
+        // Enviar comando de apagado de LED
+        WriteFile(puerto, "9;9;9\n", 6, &escritos, NULL);
+        // Leer confirmación
+        i = 0;
+        while (1) {
+            ReadFile(puerto, &c, 1, &leidos, NULL);
+            if (leidos == 0 || c == '\n' || c == '\r') break;
+        }
+        return 1;
+    }
+    return 0;
+}
+void iniciar_monedero(HANDLE puerto) {
+    DWORD escritos, leidos;
+    char c;
+    WriteFile(puerto, "8;8;8\n", 6, &escritos, NULL);
+    // Leer confirmación
+    while (1) {
+        ReadFile(puerto, &c, 1, &leidos, NULL);
+        if (leidos == 0 || c == '\n' || c == '\r') break;
+    }
+}

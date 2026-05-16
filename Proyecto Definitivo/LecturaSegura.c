@@ -2,6 +2,8 @@
 #include "LecturaSegura.h"
 #include <string.h>
 #include <conio.h>
+#include <windows.h>
+#include "SerialPC.h"
 
 int leer_entero(const char* mensaje) {
     int numero = 0;
@@ -116,14 +118,77 @@ int guardar_fichero(Elementos *productos, int NProd) {
     printf("Se han guardado %d productos correctamente\n", NProd);
     return 1;
 }
-int leer_tecla_monedero(void) {
-    char c;
+int leer_tecla_monedero(HANDLE puerto) {
     while (1) {
-        c = _getch();
-        if (c >= '1' && c <= '8') {
-            printf("%c\n", c); // mostrar la tecla pulsada
-            return c - '0';
+        if (_kbhit()) {
+            char c = _getch();
+            if (c >= '1' && c <= '8') {
+                printf("%c\n", c);
+                return c - '0';
+            }
+            printf("Error: opcion no valida\n");
         }
-        printf("Error: opcion no valida\n");
+        // Comprobar botón STM32
+        if (comprobar_boton(puerto)) {
+            return -1; // señal de cancelación
+        }
+        Sleep(100); // esperar 100ms antes de volver a comprobar
     }
+}
+void mostrar_cambio(const char *str) {
+    int i = 0;
+
+    while (str[i] != '\0') {
+        // Leer cantidad
+        int cantidad = 0;
+        while (str[i] >= '0' && str[i] <= '9') cantidad = cantidad*10 + (str[i++]-'0');
+        if (str[i] == 'x') i++;
+        // Leer valor
+        int valor = 0;
+        while (str[i] >= '0' && str[i] <= '9') valor = valor*10 + (str[i++]-'0');
+        if (str[i] == ',') i++;
+
+        // Nombre de la moneda
+        const char *nombre;
+        switch (valor) {
+            case 1:   nombre = "1 centimo";   break;
+            case 2:   nombre = "2 centimos";  break;
+            case 5:   nombre = "5 centimos";  break;
+            case 10:  nombre = "10 centimos"; break;
+            case 20:  nombre = "20 centimos"; break;
+            case 50:  nombre = "50 centimos"; break;
+            case 100: nombre = "1 euro";      break;
+            case 200: nombre = "2 euros";     break;
+            default:  nombre = "desconocida"; break;
+        }
+
+        if (cantidad == 1)
+            printf("  - %d moneda  de %s\n", cantidad, nombre);
+        else
+            printf("  - %d monedas de %s\n", cantidad, nombre);
+    }
+}
+void pausa(void) {
+    printf("\nPulse Enter para continuar...");
+    // Limpiar buffer por si hay algo pendiente
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+}
+int verificar_contrasena(void) {
+    char contrasena[32];
+    int intentos = 3;
+
+    while (intentos > 0) {
+        leer_cadena("Introduzca la contrasena: ", contrasena, 32);
+        if (strcmp(contrasena, "admin123") == 0) {
+            printf("Acceso concedido.\n");
+            return 1;
+        }
+        intentos--;
+        if (intentos > 0)
+            printf("Contrasena incorrecta. Intentos restantes: %d\n", intentos);
+    }
+    printf("Acceso denegado. Volviendo al menu...\n");
+    pausa();
+    return 0;
 }
