@@ -28,14 +28,26 @@ void listado(Elementos *productos,int NProd) {
     }
     printf("=======================================================================\n");
 }
-void menu_monedero() {
+void menu_monedero(int total, int acumulado) {
     printf("========== MONEDERO ==========\n");
-    printf("1:  1 centimo\n");
-    printf("2:  2 centimos\n");
-    printf("3:  5 centimos\n");
-    printf("4:  10 centimos\n");
-    printf("5:  20 centimos\n");
-    printf("6:  50 centimos\n");
-    printf("7:  1 euro (100 centimos)\n");
-    printf("8:  2 euros (200 centimos)\n");
+    printf("Total a pagar:    %d centimos\n", total);
+    printf("Introducidas:     %d centimos\n", acumulado);
+    printf("Faltan:           %d centimos\n", total - acumulado);
+    printf("==============================\n");
+    printf("1: 1 centimo\n");
+    printf("2: 2 centimos\n");
+    printf("3: 5 centimos\n");
+    printf("4: 10 centimos\n");
+    printf("5: 20 centimos\n");
+    printf("6: 50 centimos\n");
+    printf("7: 1 euro (100 centimos)\n");
+    printf("8: 2 euros (200 centimos)\n");
+    printf("==============================\n");
+}
+void mostrar_producto(Elementos *p) {
+    printf("=======================================================================\n");
+    printf("%-20s %-20s %-18s %-6s\n", "ID", "Nombre", "Precio(CENT)", "Stock");
+    printf("-----------------------------------------------------------------------\n");
+    printf("%-20s %-20s %-18d %-6d\n", p->id, p->nombre, p->precio, p->stock);
+    printf("=======================================================================\n");
 }

@@ -3,6 +3,7 @@
 #include <string.h>
 #include "LecturaSegura.h"
 #include "Menus.h"
+#include "Config.h"
 
 void administrador(Elementos *productos, int *NProd) {
     int i;
@@ -48,7 +49,11 @@ void administrador(Elementos *productos, int *NProd) {
             case 4: modificar_ID_admin(productos, *NProd);
                 pausa();
                 break;
-            case 5: guardar_fichero(productos, *NProd);
+            case 5:
+                if (strcmp(cfg.formato, "BIN") == 0)
+                    guardar_fichero_bin(productos, *NProd, cfg.datos);
+                else
+                    guardar_fichero_txt(productos, *NProd, cfg.datos);
                 pausa();
                 break;
             case 6:

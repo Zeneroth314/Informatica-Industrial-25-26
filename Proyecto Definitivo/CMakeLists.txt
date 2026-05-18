@@ -7,4 +7,5 @@ add_executable(Proyecto_Definitivo main.c
         Menus.c
         LecturaSegura.c
         Administrador.c
-        SerialPC.c)
+        SerialPC.c
+        Config.c)

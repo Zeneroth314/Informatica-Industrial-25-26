@@ -3,7 +3,9 @@
 #include <string.h>
 #include <conio.h>
 #include <windows.h>
+#include "Menus.h"
 #include "SerialPC.h"
+#include "Config.h"
 
 int leer_entero(const char* mensaje) {
     int numero = 0;
@@ -12,6 +14,7 @@ int leer_entero(const char* mensaje) {
 
     while (!valido) {
         printf("%s", mensaje);
+        fflush(stdout);
 
         numero = 0;
         int tieneDigitos = 0;
@@ -46,29 +49,35 @@ void leer_cadena(const char* mensaje, char* destino, int tam_max) {
     }
     destino[i] = '\0';
 }
-
-int subir_productos(Elementos *productos) {
-    FILE *fichero = fopen("productos.txt", "r");
-    if (!fichero) {
-        fichero = fopen("productos.txt", "w"); // Lo crea vacío
-        fclose(fichero);
-        printf("Se han cargado 0 productos\n");
-        return 0;
+int seleccionar_producto(Elementos *productos, int NProd, char *elecID, int *cant) {
+    listado(productos, NProd);
+    leer_cadena("Introduzca el ID del producto que desee: ", elecID, 32);
+    int i = buscador_ID(productos, NProd, elecID);
+    if (i == -1) {
+        printf("Error, no existe ese producto, volviendo al menu...\n");
+        pausa();
+        return -1;
     }
-    int cantidad = 0;
-    char buf[128];
-
-    while (fgets(buf, sizeof(buf), fichero)) {
-        Elementos *p = &productos[cantidad];
-
-        if (sscanf(buf, "%31[^;];%31[^;];%d;%d", p->id, p->nombre, &p->precio, &p->stock) == 4) {
-            cantidad++;
+    printf("Ha seleccionado: %s\n", productos[i].nombre);
+    printf("Precio: %d centimos\n", productos[i].precio);
+    printf("Existencias: %d unidades\n", productos[i].stock);
+    if (productos[i].stock == 0) {
+        printf("No hay existencias de este producto.\n");
+        pausa();
+        return -1;
+    }
+    *cant = leer_entero("Cuantas unidades desea adquirir: ");
+    if (*cant > productos[i].stock) {
+        printf("Supera la cantidad de existencias de la que se dispone.\n");
+        if (confirmar("Desea establecer el maximo de existencias para la compra")) {
+            *cant = productos[i].stock;
+        } else {
+            printf("Volviendo al menu...\n");
+            pausa();
+            return -1;
         }
     }
-
-    fclose(fichero);
-    printf("Se han cargado %d productos\n", cantidad);
-    return cantidad;
+    return i;
 }
 
 int buscador_ID(Elementos *productos,int NProd, char *id) {
@@ -80,6 +89,61 @@ int buscador_ID(Elementos *productos,int NProd, char *id) {
     }
     return -1;
 }
+// En LecturaSegura.c
+void proceso_monedero(HANDLE puerto, Elementos *productos, int i, int cant, int NProd) {
+    int monedas[] = {0, 1, 2, 5, 10, 20, 50, 100, 200};
+    int acumulado = 0;
+    int cancelado = 0;
+    char respuesta[64];
+
+    enviar_datos(puerto, cant, productos[i].precio);
+    int total = recibir_total(puerto);
+    if (total == -1) return;
+    printf("Total a pagar: %d centimos\n", total);
+    iniciar_monedero(puerto);
+
+    while (acumulado < total && !cancelado) {
+        system("cls");
+        menu_monedero(total, acumulado);
+        printf("Introduce moneda: ");
+        int eleccion = leer_tecla_monedero(puerto);
+        if (eleccion == -1) {
+            printf("Operacion cancelada desde el STM32.\n");
+            cancelado = 1;
+            continue;
+        }
+        enviar_moneda(puerto, monedas[eleccion], acumulado, total);
+        recibir_respuesta_monedero(puerto, respuesta);
+
+        if (strncmp(respuesta, "SIGUE", 5) == 0) {
+            acumulado = 0;
+            int k = 6;
+            while (respuesta[k] >= '0' && respuesta[k] <= '9')
+                acumulado = acumulado * 10 + (respuesta[k++] - '0');
+        } else if (strncmp(respuesta, "OK", 2) == 0) {
+            int cambio = 0;
+            int k = 3;
+            while (respuesta[k] >= '0' && respuesta[k] <= '9')
+                cambio = cambio * 10 + (respuesta[k++] - '0');
+            if (respuesta[k] == ';') k++;
+            printf("Pago completado.\n");
+            if (cambio > 0) {
+                printf("Cambio: %d centimos\n", cambio);
+                mostrar_cambio(&respuesta[k]);
+            } else {
+                printf("Sin cambio.\n");
+            }
+            productos[i].stock -= cant;
+            if (strcmp(cfg.formato, "BIN") == 0)
+                guardar_fichero_bin(productos, NProd, cfg.datos);
+            else
+                guardar_fichero_txt(productos, NProd, cfg.datos);
+            acumulado = total;
+        }
+    }
+    pausa();
+}
+
 int confirmar(const char *mensaje) {
     char buf[64];
     char c;
@@ -99,24 +163,6 @@ int confirmar(const char *mensaje) {
 
         printf("Error: introduzca S o N\n");
     }
-}
-
-int guardar_fichero(Elementos *productos, int NProd) {
-    FILE *fichero = fopen("productos.txt", "w");
-    if (!fichero) {
-        printf("Error fichero no guardado\n");
-        return 0;
-    }
-    for (int i = 0; i < NProd; i++) {
-        fprintf(fichero, "%s;%s;%d;%d\n",
-                productos[i].id,
-                productos[i].nombre,
-                productos[i].precio,
-                productos[i].stock);
-    }
-    fclose(fichero);
-    printf("Se han guardado %d productos correctamente\n", NProd);
-    return 1;
 }
 int leer_tecla_monedero(HANDLE puerto) {
     while (1) {
@@ -191,4 +237,60 @@ int verificar_contrasena(void) {
     printf("Acceso denegado. Volviendo al menu...\n");
     pausa();
     return 0;
+}
+int subir_productos_bin(Elementos *productos, const char *fichero) {
+    FILE *f = fopen(fichero, "rb");
+    if (!f) {
+        f = fopen(fichero, "wb");
+        if (f) fclose(f);
+        printf("Se han cargado 0 productos\n");
+        return 0;
+    }
+    int cantidad = 0;
+    while (fread(&productos[cantidad], sizeof(Elementos), 1, f) == 1)
+        cantidad++;
+    fclose(f);
+    printf("Se han cargado %d productos\n", cantidad);
+    return cantidad;
+}
+
+int subir_productos_txt(Elementos *productos, const char *fichero) {
+    FILE *f = fopen(fichero, "r");
+    if (!f) {
+        f = fopen(fichero, "w");
+        if (f) fclose(f);
+        printf("Se han cargado 0 productos\n");
+        return 0;
+    }
+    int cantidad = 0;
+    char buf[128];
+    while (fgets(buf, sizeof(buf), f)) {
+        Elementos *p = &productos[cantidad];
+        if (sscanf(buf, "%31[^;];%31[^;];%d;%d", p->id, p->nombre, &p->precio, &p->stock) == 4) {
+            cantidad++;
+        }
+    }
+    fclose(f);
+    printf("Se han cargado %d productos\n", cantidad);
+    return cantidad;
+}
+
+int guardar_fichero_bin(Elementos *productos, int NProd, const char *fichero) {
+    FILE *f = fopen(fichero, "wb");
+    if (!f) { printf("Error: fichero no guardado\n"); return 0; }
+    fwrite(productos, sizeof(Elementos), NProd, f);
+    fclose(f);
+    printf("Se han guardado %d productos correctamente\n", NProd);
+    return 1;
+}
+
+int guardar_fichero_txt(Elementos *productos, int NProd, const char *fichero) {
+    FILE *f = fopen(fichero, "w");
+    if (!f) { printf("Error: fichero no guardado\n"); return 0; }
+    for (int i = 0; i < NProd; i++)
+        fprintf(f, "%s;%s;%d;%d\n", productos[i].id, productos[i].nombre,
+                productos[i].precio, productos[i].stock);
+    fclose(f);
+    printf("Se han guardado %d productos correctamente\n", NProd);
+    return 1;
 }

@@ -8,5 +8,6 @@
 void menu_general();
 void menu_administrador();
 void listado(Elementos *productos, int NProd);
-void menu_monedero();
+void menu_monedero(int total, int acumulado);
+void mostrar_producto(Elementos *p);
 #endif //PROYECTO_DEFINITIVO_MENUS_H
